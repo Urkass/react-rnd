@@ -206,6 +206,8 @@ export default class Rnd extends Component {
       disableDragging: true,
       original: { x: this.draggable.state.x, y: this.draggable.state.y },
     });
+
+    let maxWidth, maxHeight;
     if (this.props.bounds) {
       const parent = this.wrapper && this.wrapper.parentNode;
       const target = this.props.bounds === 'parent'
@@ -219,34 +221,27 @@ export default class Rnd extends Component {
         const targetRect = target.getBoundingClientRect();
         const targetLeft = targetRect.left;
         const targetTop = targetRect.top;
+
         if (/left/i.test(dir)) {
           const max = (selfLeft - targetLeft) + this.resizable.size.width;
+          maxWidth = max > this.props.maxWidth ? this.props.maxWidth : max;
           this.setState({ maxWidth: max > this.props.maxWidth ? this.props.maxWidth : max });
         }
         if (/right/i.test(dir)) {
           const max = target.offsetWidth + (targetLeft - selfLeft);
-          this.setState({
-            maxWidth: max > (this.props.maxWidth || Infinity)
-              ? this.props.maxWidth
-              : max,
-          });
+          maxWidth = max > (this.props.maxWidth || Infinity) ? this.props.maxWidth : max;;
         }
         if (/top/i.test(dir)) {
           const max = (selfTop - targetTop) + this.resizable.size.height;
-          this.setState({ maxHeight: max > this.props.maxHeight ? this.props.maxHeight : max });
+          maxHeight = max > this.props.maxHeight ? this.props.maxHeight : max;
         }
         if (/bottom/i.test(dir)) {
           const max = target.offsetHeight + (targetTop - selfTop);
-          this.setState({
-            maxHeight: max > (this.props.maxHeight || Infinity)
-              ? this.props.maxHeight
-              : max,
-          });
+          maxHeight = max > (this.props.maxHeight || Infinity) ? this.props.maxHeight : max;
         }
       }
-    } else {
-      this.setState({ maxWidth: this.props.maxWidth, maxHeight: this.props.maxHeight });
     }
+    this.setState({ maxWidth: maxWidth || this.props.maxWidth, maxHeight: maxHeight || this.props.maxHeight });
     if (this.props.onResizeStart) {
       this.props.onResizeStart(e, dir, refToResizableElement);
     }
